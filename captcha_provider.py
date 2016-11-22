@@ -41,13 +41,13 @@ class HttpCaptchaProvider:
             try:
                 r = self.__session.request(
                     self.__fetch_method,
-                    self.__fetch_url,
+                    self.__fetch_url+ str(random.randint(1479376496873,2479376496873)),
                     headers=self.__fetch_headers
                 )
                 break
             except Exception as e:
                 print('An exception occurs when fetching captcha', e)
-        return None if r is None else mpimg.imread(BytesIO(r.content))
+        return None if r is None else mpimg.imread(BytesIO(r.content),'jpeg')
 
     def verify(self, seq):
         if self.__is_virgin:
@@ -140,6 +140,60 @@ class BilibiliCaptchaProvider(HttpCaptchaProvider, NormalSeqSet):
     def canonicalize_seq(self, seq):
         return seq.upper()
 
+
+class KuaiZhanCaptchaProvider(HttpCaptchaProvider, NormalSeqSet):
+    __GET = 'GET'
+    __POST = 'POST'
+    __USER_AGENT = 'User-Agent'
+    __HOST = 'Host'
+    __REFERER = 'Referer'
+
+    __user_agent = ('Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:34.0) '
+                    'Gecko/20100101 Firefox/34.0')
+    __host = 'bus.kuaizhan.com'
+
+    __verify_method = __POST
+    __verify_url = 'http://bus.kuaizhan.com/bus/1.0/apps/55d45b2dde0f01bf5ba98dcf/env/pro/funcs/sohu_multivote?site_id=3755165334&data=58213bccbeacc01b73dfa6a2&uid=weNpJVmk&code='
+    __verify_headers = {
+        __USER_AGENT: __user_agent,
+        __HOST: __host,
+        __REFERER: __verify_url
+    }
+
+    __fetch_method = __GET
+    __fetch_url = 'http://bus.kuaizhan.com/auth/api/sms/picvcode.jpg?'
+    __fetch_headers = {
+        __USER_AGENT: __user_agent,
+        __HOST: __host,
+        __REFERER: __verify_url
+    }
+
+    def __init__(self):
+        #       'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+        chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+        NormalSeqSet.__init__(self, chars, 4)
+        HttpCaptchaProvider.__init__(
+            self,
+            self.__fetch_method, self.__fetch_url, self.__fetch_headers,
+            self.__verify_method, self.__verify_url, self.__verify_headers,
+        )
+
+    def verify(self, seq):
+        return self.is_valid_seq(seq) and HttpCaptchaProvider.verify(self, seq)
+
+    def _get_data_from_seq(self, seq):
+        return {'vd': seq, 'action': "checkVd"}
+
+    def _is_correct_response(self, r):
+        r_json = r.json()
+        if r_json['status']:
+            return True
+        else:
+            print('The response of verifying captcha is', r_json['message'])
+            return False
+
+    def canonicalize_seq(self, seq):
+        return seq.upper()
 
 def _test_bilibili():
     captcha_provider = BilibiliCaptchaProvider()

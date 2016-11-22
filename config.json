@@ -1,5 +1,5 @@
 {
-  "dataset": "dataset",
+  "dataset": "my_dataset",
   "training": "training",
   "training_char":"training_char",
   "test": "test",

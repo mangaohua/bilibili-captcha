@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import numpy as np
 
-from captcha_provider import BilibiliCaptchaProvider
+from captcha_provider import KuaiZhanCaptchaProvider
 import config as c
 from captcha_recognizer import CaptchaRecognizer
 
@@ -41,7 +41,7 @@ _SUCCESS = 'success'
 # the sequence that tells the program to skip a image when fetching
 _SEQ_SKIP = '0'
 
-_captcha_provider = BilibiliCaptchaProvider()
+_captcha_provider = KuaiZhanCaptchaProvider()
 
 
 def _get_training_char_dir(char):

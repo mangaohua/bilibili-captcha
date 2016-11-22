@@ -14,12 +14,12 @@ import captcha_learn
 def main():
     pass
     # test_recognize_training()
-    # dataset_manager.fetch_training_set(50)
+    # dataset_manager.fetch_training_set(5)
     # test_recognize_training()
     # captcha_learn.reconstruct_model()
     # test_recognize_http(num=30)
     # dataset_manager.get_training_images(1)
-    # dataset_manager.partition_training_images_to_chars()
+    dataset_manager.partition_training_images_to_chars()
     # dataset_manager.partition_training_images_to_chars(force_update=True,
     # save=True)
     # dataset_manager.tune_partition_parameter()
