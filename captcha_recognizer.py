@@ -7,13 +7,13 @@ from scipy import ndimage
 
 import config as c
 from helper import time_func, cm_greys, repeat, sort_by_occurrence
-from captcha_provider import BilibiliCaptchaProvider
+from captcha_provider import KuaiZhanCaptchaProvider
 import captcha_learn
 
 
 class CaptchaRecognizer:
-    def __init__(self, captcha_provider=BilibiliCaptchaProvider(),
-                 h_tol=6 / 360,
+    def __init__(self, captcha_provider=KuaiZhanCaptchaProvider(),
+                 h_tol=65 / 360,
                  s_tol=36 / 100,
                  v_tol=40 / 100):
         self.character_num = captcha_provider.seq_length
@@ -24,18 +24,18 @@ class CaptchaRecognizer:
         self.v_tolerance = v_tol
 
         # parameters to be used in remove_noise_with_neighbors
-        self.neighbor_low = 0
-        self.neighbor_high = 7
+        self.neighbor_low = -1
+        self.neighbor_high = 1.2
         self.neighbor_ratio = 1.3
 
         # Four parameters to be used in partition
-        self.char_width_min = 5
-        self.char_width_max = 30
-        self.char_height_min = 10
-        self.char_height_max = 30
+        self.char_width_min = 10
+        self.char_width_max = 60
+        self.char_height_min = 15
+        self.char_height_max = 60
 
     # Try to partition a CAPTCHA into each char image
-    def partition(self, img, save_intermediate=False, verbose=False,
+    def partition(self, img, save_intermediate=True, verbose=True,
                   force_partition=True):
         weak_confidence = 0
         if save_intermediate:
@@ -82,8 +82,7 @@ class CaptchaRecognizer:
             char_images.append(char_image)
         if force_partition and len(char_images) == self.character_num - 1:
             weak_confidence = 1
-            char_images = self.force_partition(char_images)
-
+            char_images = self.force_partition(char_images)  
         # step 5
         # Check if segmentation was successful and get characters
         if len(char_images) == self.character_num:
@@ -131,6 +130,15 @@ class CaptchaRecognizer:
             success = False
         return success, seq, weak_confidence
 
+
+    def remove_green(self, h, s, v,std_h):
+        row_len,col_len = h.shape
+        print(row_len,col_len)
+        
+        cs = sum(np.abs(h- std_h)< self.h_tolerance)
+        print(cs)
+
+
     # Convert to a grayscale image using HSV
     def remove_noise_with_hsv(self, img):
         # Use number of occurrences to find the standard h, s, v
@@ -139,17 +147,22 @@ class CaptchaRecognizer:
         img_int = np.dot(np.rint(img * 255), np.power(256, np.arange(3)))
         color_array = sort_by_occurrence(img_int.flatten())
         # standard color is the 2nd most frequent color
-        std_color = color_array[1]
-        std_b, mod = divmod(std_color, 256 ** 2)
-        std_g, std_r = divmod(mod, 256)
+        # std_color = color_array[1000]
+        # std_b, mod = divmod(std_color, 256 ** 2)
+        # std_g, std_r = divmod(mod, 256)
         # noinspection PyTypeChecker
+        std_r = 93
+        std_g = 138
+        std_b = 180
         std_h, std_s, std_v = colors.rgb_to_hsv(
             np.array([std_r, std_g, std_b]) / 255
         )
-        # print(std_h * 360, std_s * 100, std_v * 100)
+        print(std_r, std_g, std_b)
+        print(std_h * 360, std_s * 100, std_v * 100)
         height, width, _ = img.shape
         img_hsv = colors.rgb_to_hsv(img)
         h, s, v = img_hsv[:, :, 0], img_hsv[:, :, 1], img_hsv[:, :, 2]
+        self.remove_green(h,s,v,std_h)
         h_mask = np.abs(h - std_h) > self.h_tolerance
         s_mask = np.abs(s - std_s) > self.s_tolerance
         delta_v = np.abs(v - std_v)

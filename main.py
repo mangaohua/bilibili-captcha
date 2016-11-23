@@ -19,9 +19,9 @@ def main():
     # captcha_learn.reconstruct_model()
     # test_recognize_http(num=30)
     # dataset_manager.get_training_images(1)
-    dataset_manager.partition_training_images_to_chars()
-    # dataset_manager.partition_training_images_to_chars(force_update=True,
-    # save=True)
+    #dataset_manager.partition_training_images_to_chars()
+    dataset_manager.partition_training_images_to_chars(force_update=True,
+     save=True)
     # dataset_manager.tune_partition_parameter()
 
 
@@ -141,6 +141,26 @@ def test_recognize_http(show_img=False, num=1, reconstruct=False,
     time_end = time.time()
     print('Time used to test recognize http is: ', time_end - time_start)
 
+def rgb2hsv(r, g, b):
+    r, g, b = r/255.0, g/255.0, b/255.0
+    mx = max(r, g, b)
+    mn = min(r, g, b)
+    df = mx-mn
+    if mx == mn:
+        h = 0
+    elif mx == r:
+        h = (60 * ((g-b)/df) + 360) % 360
+    elif mx == g:
+        h = (60 * ((b-r)/df) + 120) % 360
+    elif mx == b:
+        h = (60 * ((r-g)/df) + 240) % 360
+    if mx == 0:
+        s = 0
+    else:
+        s = df/mx
+    v = mx
+    return h, s, v
+    
 
 if __name__ == '__main__':
     main()
