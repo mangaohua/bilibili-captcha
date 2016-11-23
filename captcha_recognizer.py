@@ -13,7 +13,7 @@ import captcha_learn
 
 class CaptchaRecognizer:
     def __init__(self, captcha_provider=KuaiZhanCaptchaProvider(),
-                 h_tol=65 / 360,
+                 h_tol=120 / 360,
                  s_tol=36 / 100,
                  v_tol=40 / 100):
         self.character_num = captcha_provider.seq_length
@@ -25,14 +25,14 @@ class CaptchaRecognizer:
 
         # parameters to be used in remove_noise_with_neighbors
         self.neighbor_low = -1
-        self.neighbor_high = 1.2
-        self.neighbor_ratio = 1.3
+        self.neighbor_high = 23
+        self.neighbor_ratio = 5.2
 
         # Four parameters to be used in partition
         self.char_width_min = 10
         self.char_width_max = 60
         self.char_height_min = 15
-        self.char_height_max = 60
+        self.char_height_max = 70
 
     # Try to partition a CAPTCHA into each char image
     def partition(self, img, save_intermediate=True, verbose=True,
@@ -131,12 +131,14 @@ class CaptchaRecognizer:
         return success, seq, weak_confidence
 
 
-    def remove_green(self, h, s, v,std_h):
-        row_len,col_len = h.shape
-        print(row_len,col_len)
+    def remove_green(self, h,std_h,h_mask,g_mask):
+        row_len,col_len = h_mask.shape
         
-        cs = sum(np.abs(h- std_h)< self.h_tolerance)
-        print(cs)
+        cs = sum(np.abs(h- std_h)< 0.18)
+        for i in range(col_len) :
+            if cs[i]<10:
+                h_mask[:,i] = np.logical_or(h_mask[:,i],g_mask[:,i]) 
+        return h_mask
 
 
     # Convert to a grayscale image using HSV
@@ -157,23 +159,22 @@ class CaptchaRecognizer:
         std_h, std_s, std_v = colors.rgb_to_hsv(
             np.array([std_r, std_g, std_b]) / 255
         )
-        print(std_r, std_g, std_b)
-        print(std_h * 360, std_s * 100, std_v * 100)
         height, width, _ = img.shape
         img_hsv = colors.rgb_to_hsv(img)
         h, s, v = img_hsv[:, :, 0], img_hsv[:, :, 1], img_hsv[:, :, 2]
-        self.remove_green(h,s,v,std_h)
         h_mask = np.abs(h - std_h) > self.h_tolerance
-        s_mask = np.abs(s - std_s) > self.s_tolerance
-        delta_v = np.abs(v - std_v)
-        v_mask = delta_v > self.v_tolerance
-        hsv_mask = np.logical_or(
-            np.logical_or(
-                h_mask, s_mask
-            ), v_mask
-        )
-        new_img = 1 - delta_v
-        new_img[hsv_mask] = 0
+        g_mask = np.abs(h- 0.3361) < 0.1
+        h_mask = self.remove_green(h,std_h,h_mask,g_mask)
+        # s_mask = np.abs(s - std_s) > self.s_tolerance
+        # delta_v = np.abs(v - std_v)
+        # v_mask = delta_v > self.v_tolerance
+        # hsv_mask = np.logical_or(
+        #     np.logical_or(
+        #         h_mask, s_mask
+        #     ), v_mask
+        # )
+        new_img = 0.3 - v + v
+        new_img[h_mask] = 0
         # Three types of grayscale colors in new_img:
         # Type A: 1. Outside noise, or inside point.
         # Type B: between 0 and 1. Outside noise, or contour point.
