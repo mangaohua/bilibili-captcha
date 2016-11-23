@@ -26,7 +26,7 @@ class CaptchaRecognizer:
         # parameters to be used in remove_noise_with_neighbors
         self.neighbor_low = -1
         self.neighbor_high = 23
-        self.neighbor_ratio = 5.2
+        self.neighbor_ratio = 5.3
 
         # Four parameters to be used in partition
         self.char_width_min = 10
