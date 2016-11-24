@@ -5,7 +5,7 @@ import time
 import config as c
 import dataset_manager
 from captcha_recognizer import CaptchaRecognizer
-from captcha_provider import BilibiliCaptchaProvider
+from captcha_provider import KuaiZhanCaptchaProvider
 from helper import show_image, time_func
 # noinspection PyUnresolvedReferences
 import captcha_learn
@@ -14,14 +14,14 @@ import captcha_learn
 def main():
     pass
     # test_recognize_training()
-    # dataset_manager.fetch_training_set(20)
+    # dataset_manager.fetch_training_set(200)
     # test_recognize_training()
     # captcha_learn.reconstruct_model()
-    # test_recognize_http(num=30)
+    test_recognize_http(num=1)
     # dataset_manager.get_training_images(1)
     #dataset_manager.partition_training_images_to_chars()
-    dataset_manager.partition_training_images_to_chars(force_update=False,
-     save=True)
+    # dataset_manager.partition_training_images_to_chars(force_update=False,
+     # save=True)
     # dataset_manager.tune_partition_parameter()
 
 
@@ -65,7 +65,7 @@ def test_recognize_training():
 def test_recognize_http(show_img=False, num=1, reconstruct=False,
                         force_partition=True):
     time_start = time.time()
-    provider = BilibiliCaptchaProvider()
+    provider = KuaiZhanCaptchaProvider()
     recognizer = CaptchaRecognizer()
     fail = 0
     right_strong = 0

@@ -14,8 +14,8 @@ import config as c
 from captcha_provider import BilibiliCaptchaProvider
 
 # The standard shape of one character, determined through experience
-_std_height = 20
-_std_width = 15
+_std_height = 50
+_std_width = 30
 
 _captcha_provider = BilibiliCaptchaProvider()
 

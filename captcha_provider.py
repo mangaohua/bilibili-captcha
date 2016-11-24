@@ -44,6 +44,7 @@ class HttpCaptchaProvider:
                     self.__fetch_url+ str(random.randint(1479376496873,2479376496873)),
                     headers=self.__fetch_headers
                 )
+                self.__verify_headers['Cookie'] = 'device_id=' + r.cookies['device_id']
                 break
             except Exception as e:
                 print('An exception occurs when fetching captcha', e)
@@ -54,7 +55,7 @@ class HttpCaptchaProvider:
             raise ValueError('Must fetch a CAPTCHA first!')
         r = self.__session.request(
             self.__verify_method,
-            self.__verify_url,
+            self.__verify_url+ seq,
             headers=self.__verify_headers,
             data=self._get_data_from_seq(seq)
         )
@@ -147,12 +148,13 @@ class KuaiZhanCaptchaProvider(HttpCaptchaProvider, NormalSeqSet):
     __USER_AGENT = 'User-Agent'
     __HOST = 'Host'
     __REFERER = 'Referer'
+    __COOKIE = 'Cookie'
 
     __user_agent = ('Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:34.0) '
                     'Gecko/20100101 Firefox/34.0')
     __host = 'bus.kuaizhan.com'
 
-    __verify_method = __POST
+    __verify_method = __GET
     __verify_url = 'http://bus.kuaizhan.com/bus/1.0/apps/55d45b2dde0f01bf5ba98dcf/env/pro/funcs/sohu_multivote?site_id=3755165334&data=58213bccbeacc01b73dfa6a2&uid=weNpJVmk&code='
     __verify_headers = {
         __USER_AGENT: __user_agent,
@@ -186,7 +188,7 @@ class KuaiZhanCaptchaProvider(HttpCaptchaProvider, NormalSeqSet):
 
     def _is_correct_response(self, r):
         r_json = r.json()
-        if r_json['status']:
+        if r_json['err_code']==0:
             return True
         else:
             print('The response of verifying captcha is', r_json['message'])
