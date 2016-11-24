@@ -188,7 +188,7 @@ class KuaiZhanCaptchaProvider(HttpCaptchaProvider, NormalSeqSet):
 
     def _is_correct_response(self, r):
         r_json = r.json()
-        if r_json['err_code']==0:
+        if r_json['message']=='请继续':
             return True
         else:
             print('The response of verifying captcha is', r_json['message'])
