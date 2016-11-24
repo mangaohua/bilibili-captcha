@@ -17,7 +17,7 @@ def main():
     # dataset_manager.fetch_training_set(200)
     # test_recognize_training()
     # captcha_learn.reconstruct_model()
-    test_recognize_http(num=1)
+    test_recognize_http(num=20)
     # dataset_manager.get_training_images(1)
     #dataset_manager.partition_training_images_to_chars()
     # dataset_manager.partition_training_images_to_chars(force_update=False,
@@ -27,7 +27,7 @@ def main():
 
 def test_recognize_training():
     c.clear_temp()
-    seq = 'JWP26'
+    seq = '33Q9'
     # seq = 'K464J'
 
     # Sticking together
@@ -62,7 +62,7 @@ def test_recognize_training():
         print('Result: {}'.format(seq == seq_r))
 
 
-def test_recognize_http(show_img=False, num=1, reconstruct=False,
+def test_recognize_http(show_img=True, num=1, reconstruct=False,
                         force_partition=True):
     time_start = time.time()
     provider = KuaiZhanCaptchaProvider()
@@ -77,6 +77,7 @@ def test_recognize_http(show_img=False, num=1, reconstruct=False,
             'fetch' if num == 1 else None,
             lambda: provider.fetch()
         )
+
         if show_img and num == 1:
             show_image(image)
         if num == 1:
@@ -107,8 +108,8 @@ def test_recognize_http(show_img=False, num=1, reconstruct=False,
             if num == 1:
                 print('Recognized seq is {}'.format(result))
             if result:
-                for i in range(5):
-                    provider.verify(seq)
+                # for i in range(5):
+                    # provider.verify(seq)
                 if weak_confidence:
                     right_weak += 1
                 else:

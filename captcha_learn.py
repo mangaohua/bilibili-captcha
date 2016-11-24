@@ -11,13 +11,13 @@ from sklearn.cross_validation import StratifiedShuffleSplit
 import helper
 import dataset_manager
 import config as c
-from captcha_provider import BilibiliCaptchaProvider
+from captcha_provider import KuaiZhanCaptchaProvider
 
 # The standard shape of one character, determined through experience
 _std_height = 50
 _std_width = 30
 
-_captcha_provider = BilibiliCaptchaProvider()
+_captcha_provider = KuaiZhanCaptchaProvider()
 
 _best_model_path = c.get('best_model.pkl')
 

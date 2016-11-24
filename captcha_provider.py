@@ -59,6 +59,8 @@ class HttpCaptchaProvider:
             headers=self.__verify_headers,
             data=self._get_data_from_seq(seq)
         )
+        print(self.__verify_headers)
+        print(self.__verify_url+ seq)
         return self._is_correct_response(r)
 
     @abstractmethod
